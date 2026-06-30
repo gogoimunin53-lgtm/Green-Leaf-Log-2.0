@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaf Weight Log - Pure Professional</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 15px;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 700px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-add:hover { background-color: #219653; }
+        
+        .filter-section {
+            margin-top: 25px;
+            background: #eef2f3;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-download, .btn-print, .btn-chrome {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-download { background-color: #2980b9; }
+        .btn-print { background-color: #8e44ad; }
+        .btn-chrome { background-color: #d35400; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            font-size: 14px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+        }
+        th { background-color: #f2f2f2; }
+        
+        .month-header-row {
+            background-color: #34495e !important;
+            color: white !important;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .subtotal-row {
+            font-weight: bold;
+            background-color: #e8f4f8 !important;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #eaedd0 !important;
+        }
+
+        /* --- EXCLUSIVE HIGH QUALITY PRINT STYLES --- */
+        #printableInvoiceArea {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableInvoiceArea, #printableInvoiceArea * {
+                visibility: visible;
+            }
+            #printableInvoiceArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            th, td {
+                border: 1px solid #000 !important;
+                padding: 10px !important;
+                color: #000 !important;
+            }
+            .month-header-row {
+                background-color: #ddd !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .subtotal-row {
+                background-color: #f2f2f2 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .total-row {
+                background-color: #eaedd0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="inputFormArea">
+        <h2>Leaf Weight & Quality Log</h2>
+        <input type="hidden" id="editIndex" value="-1">
+        
+        <div class="form-group">
+            <label>Month:</label>
+            <select id="month">
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June" selected>June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Name of the Agent:</label>
+            <input type="text" id="agentName" placeholder="e.g., CHANDAN" oninput="capitalizeAgent(this)">
+        </div>
+        
+        <div class="form-group">
+            <label>Date:</label>
+            <input type="date" id="logDate">
+        </div>
+        
+        <div class="form-group">
+            <label>Quantity (KG):</label>
+            <input type="number" id="quantity" placeholder="e.g., 90">
+        </div>
+        
+        <div class="form-group">
+            <label>Fine Green Leaf %:</label>
+            <input type="number" id="leafPercentage" placeholder="e.g., 44 (Optional)">
+        </div>
+        
+        <button class="btn-add" id="submitBtn" onclick="saveData()">Add Entry</button>
+
+        <hr style="margin-top: 30px; border: 0; border-top: 1px solid #ccc;">
+
+        <div class="filter-section">
+            <h3>Filter & Generate Receipt</h3>
+            <div class="filter-grid">
+                <div class="form-group">
+                    <label>Filter Month:</label>
+                    <select id="filterMonth" onchange="updateFilters()">
+                        <option value="All">All Months (Yearly Sheet)</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Filter Agent Name:</label>
+                    <select id="filterAgent" onchange="updateFilters()">
+                        <option value="All">All Agents</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <div class="btn-row">
+                    <button class="btn-download" onclick="downloadCSV()">Excel Sheet</button>
+                    <button class="btn-print" onclick="triggerNativePrint()">Print / Save PDF</button>
+                </div>
+                <button class="btn-chrome" onclick="openDirectInChrome()">🌐 Open in Mobile Chrome (Anti-Error)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Logs Display Area -->
+    <div>
+        <h3 style="margin-top: 25px; text-align: left; border-bottom: 2px solid #333; padding-bottom: 5px;" id="tableTitle">Logs Summary</h3>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Agent Name</th>
+                        <th>Quantity (KG)</th>
+                        <th>Leaf %</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    <!-- Loaded Dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- HIDDEN HIGH-DEFINITION PRINT PREVIEW -->
+<div id="printableInvoiceArea">
+    <div style="text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px;">
+        <h1 style="margin:0; padding:0; font-size:26px; text-transform:uppercase;">Green Leaf Weight Receipt</h1>
+        <p style="margin:5px 0 0 0; font-size:13px; color:#333;">Official Logs Summary Sheet</p>
+    </div>
+    
+    <table style="width: 100%; margin-bottom: 25px; font-size: 15px; border: 1px dashed #000; border-collapse: collapse;">
+        <tr>
+            <td style="padding:10px; border:none;"><strong>Agent Name:</strong> <span id="pAgent">All</span></td>
+            <td style="padding:10px; border:none; text-align: right;"><strong>Statement Month:</strong> <span id="pMonth">All</span></td>
+        </tr>
+        <tr>
+            <td style="padding:10px; border:none;"><strong>Print Date:</strong> <span id="pDate"></span></td>
+            <td style="padding:10px; border:none; text-align: right;"><strong>Status:</strong> Verified Log</td>
+        </tr>
+    </table>
+
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="background-color:#f2f2f2; text-align:left; padding:10px; border:1px solid #000;">Date</th>
+                <th style="background-color:#f2f2f2; text-align:left; padding:10px; border:1px solid #000;">Agent Name</th>
+                <th style="background-color:#f2f2f2; text-align:left; padding:10px; border:1px solid #000;">Quantity (KG)</th>
+                <th style="background-color:#f2f2f2; text-align:left; padding:10px; border:1px solid #000;">Leaf %</th>
+            </tr>
+        </thead>
+        <tbody id="printTableBody">
+            <!-- Mirror Data Inject -->
+        </tbody>
+    </table>
+
+    <!-- PURE OFFICIAL SIGNATURE AREA (NO DIGITAL TRASH) -->
+    <div style="margin-top: 100px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px;">
+        <div>
+            <p style="border-top: 1px solid #000; width: 170px; text-align: center; font-size: 14px; padding-top: 5px; margin: 0; font-weight: bold; color: #000;">Receiver Signature</p>
+        </div>
+        
+        <div>
+            <p style="border-top: 1px solid #000; width: 170px; text-align: center; font-size: 14px; padding-top: 5px; margin: 0; font-weight: bold; color: #000;">Authorized Signatory</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let logs = JSON.parse(localStorage.getItem('leafLogs')) || [];
+    const monthOrder = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    function capitalizeAgent(input) {
+        input.value = input.value.toUpperCase();
+    }
+
+    function saveData() {
+        const month = document.getElementById('month').value;
+        let agentName = document.getElementById('agentName').value.trim();
+        const logDate = document.getElementById('logDate').value;
+        const quantity = parseFloat(document.getElementById('quantity').value);
+        let leafPercentage = document.getElementById('leafPercentage').value;
+        const editIndex = parseInt(document.getElementById('editIndex').value);
+
+        if (!agentName || !logDate || isNaN(quantity)) {
+            alert("Fields fill up koribo lagibo!");
+            return;
+        }
+
+        let formattedPercentage = leafPercentage ? leafPercentage.replace('%', '') + "%" : "—";
+
+        const logItem = {
+            month: month,
+            agent: agentName,
+            rawDate: logDate,
+            quantity: quantity,
+            percentage: formattedPercentage
+        };
+
+        if (editIndex === -1) {
+            logs.push(logItem);
+        } else {
+            logs[editIndex] = logItem;
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('submitBtn').innerText = "Add Entry";
+        }
+
+        logs.sort((a, b) => new Date(a.rawDate) - new Date(b.rawDate));
+        localStorage.setItem('leafLogs', JSON.stringify(logs));
+        
+        clearForm();
+        populateAgentDropdown();
+        renderTable();
+    }
+
+    function clearForm() {
+        document.getElementById('agentName').value = '';
+        document.getElementById('logDate').value = '';
+        document.getElementById('quantity').value = '';
+        document.getElementById('leafPercentage').value = '';
+        document.getElementById('editIndex').value = "-1";
+        document.getElementById('submitBtn').innerText = "Add Entry";
+    }
+
+    function formatDisplayDate(dateString) {
+        const dateObj = new Date(dateString);
+        if (isNaN(dateObj)) return dateString;
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = String(dateObj.getFullYear()).slice(-2);
+        return `${day}.${month}.${year}`;
+    }
+
+    function populateAgentDropdown() {
+        const agentSelect = document.getElementById('filterAgent');
+        const currentSelected = agentSelect.value;
+        let uniqueAgents = [...new Set(logs.map(log => log.agent))];
+        
+        agentSelect.innerHTML = '<option value="All">All Agents</option>';
+        uniqueAgents.forEach(agent => {
+            agentSelect.innerHTML += `<option value="${agent}">${agent}</option>`;
+        });
+
+        if(uniqueAgents.includes(currentSelected)) {
+            agentSelect.value = currentSelected;
+        }
+    }
+
+    function updateFilters() {
+        renderTable();
+    }
+
+    function renderTable() {
+        const filterMonth = document.getElementById('filterMonth').value;
+        const filterAgent = document.getElementById('filterAgent').value;
+        const tbody = document.getElementById('logTableBody');
+        const pbody = document.getElementById('printTableBody');
+        
+        tbody.innerHTML = '';
+        pbody.innerHTML = '';
+        
+        let grandTotalWeight = 0;
+        let totalCount = 0;
+
+        let titleText = (filterMonth !== "All" ? `Month: ${filterMonth} | ` : `Yearly Report (All Months) | `) + (filterAgent !== "All" ? `Agent: ${filterAgent}` : `All Agents Log`);
+        document.getElementById('tableTitle').innerText = titleText;
+
+        document.getElementById('pAgent').innerText = filterAgent;
+        document.getElementById('pMonth').innerText = filterMonth;
+        document.getElementById('pDate').innerText = new Date().toLocaleDateString('en-GB');
+
+        let groupedData = {};
+        monthOrder.forEach(m => { groupedData[m] = []; });
+
+        logs.forEach((log, index) => {
+            if (filterMonth !== "All" && log.month !== filterMonth) return;
+            if (filterAgent !== "All" && log.agent !== filterAgent) return;
+            
+            log.originalIndex = index;
+            groupedData[log.month].push(log);
+            totalCount++;
+        });
+
+        monthOrder.forEach(m => {
+            let records = groupedData[m];
+            if (records.length === 0) return;
+
+            let monthlySubtotal = 0;
+
+            let monthHeaderUI = `<tr class="month-header-row"><td colspan="5" style="text-align: center; text-transform: uppercase; letter-spacing: 1px;">📁 ${m} Logs Area</td></tr>`;
+            let monthHeaderPrint = `<tr class="month-header-row"><td colspan="4" style="text-align: center; text-transform: uppercase; letter-spacing: 1px; font-weight:bold; background-color:#ddd !important;">${m} Logs Summary</td></tr>`;
+            
+            tbody.innerHTML += monthHeaderUI;
+            pbody.innerHTML += monthHeaderPrint;
+
+            records.forEach(log => {
+                monthlySubtotal += log.quantity;
+                grandTotalWeight += log.quantity;
+
+                let row = `<tr>
+                    <td>${formatDisplayDate(log.rawDate)}</td>
+                    <td>${log.agent}</td>
+                    <td>${log.quantity} kg</td>
+                    <td>${log.percentage}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editLog(${log.originalIndex})">Edit</button>
+                        <button class="btn-delete" onclick="deleteLog(${log.originalIndex})">Delete</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+
+                let printRow = `<tr>
+                    <td style="padding:10px; border:1px solid #000;">${formatDisplayDate(log.rawDate)}</td>
+                    <td style="padding:10px; border:1px solid #000;">${log.agent}</td>
+                    <td style="padding:10px; border:1px solid #000; font-weight:bold;">${log.quantity} kg</td>
+                    <td style="padding:10px; border:1px solid #000;">${log.percentage}</td>
+                </tr>`;
+                pbody.innerHTML += printRow;
+            });
+
+            let subtotalUI = `<tr class="subtotal-row"><td>${m} Subtotal</td><td>—</td><td>${monthlySubtotal} kg</td><td>—</td><td>—</td></tr>`;
+            let subtotalPrint = `<tr class="subtotal-row" style="font-weight:bold; background-color:#f2f2f2;"><td style="padding:10px; border:1px solid #000;">${m} Subtotal</td><td style="padding:10px; border:1px solid #000;">—</td><td style="padding:10px; border:1px solid #000; font-weight:bold;">${monthlySubtotal} kg</td><td style="padding:10px; border:1px solid #000;">—</td></tr>`;
+            
+            tbody.innerHTML += subtotalUI;
+            pbody.innerHTML += subtotalPrint;
+        });
+
+        if (totalCount > 0) {
+            let finalRow = `<tr class="total-row"><td>GRAND TOTAL</td><td>—</td><td>${grandTotalWeight} kg</td><td>—</td><td>—</td></tr>`;
+            tbody.innerHTML += finalRow;
+
+            let pFinalRow = `<tr class="total-row" style="font-weight:bold; background-color:#eaedd0;"><td style="padding:10px; border:1px solid #000; font-size:15px; color: #000;">GRAND TOTAL</td><td style="padding:10px; border:1px solid #000;">—</td><td style="padding:10px; border:1px solid #000; font-size:17px; color: #000;">${grandTotalWeight} kg</td><td style="padding:10px; border:1px solid #000;">—</td></tr>`;
+            pbody.innerHTML += pFinalRow;
+        } else {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No records found.</td></tr>`;
+            pbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px;">No records found.</td></tr>`;
+        }
+    }
+
+    function editLog(index) {
+        const log = logs[index];
+        document.getElementById('month').value = log.month;
+        document.getElementById('agentName').value = log.agent;
+        document.getElementById('logDate').value = log.rawDate;
+        document.getElementById('quantity').value = log.quantity;
+        document.getElementById('leafPercentage').value = log.percentage !== "—" ? log.percentage.replace('%', '') : '';
+        document.getElementById('editIndex').value = index;
+        document.getElementById('submitBtn').innerText = "Update Entry";
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function deleteLog(index) {
+        if (confirm("Delete koribo bisharise?")) {
+            logs.splice(index, 1);
+            localStorage.setItem('leafLogs', JSON.stringify(logs));
+            populateAgentDropdown();
+            renderTable();
+        }
+    }
+
+    function triggerNativePrint() {
+        window.print();
+    }
+
+    function openDirectInChrome() {
+        const printAreaHTML = document.getElementById('printableInvoiceArea').innerHTML;
+        const outputPage = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Leaf_Receipt_A4</title>
+    <style>
+        @page { size: A4 portrait; margin: 18mm; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background:#fff; color:#000; }
+        th, td { border: 1px solid #000 !important; padding: 10px !important; }
+        .month-header-row { background-color: #ddd !important; font-weight: bold; text-align:center; }
+        .subtotal-row { background-color: #f2f2f2 !important; font-weight: bold; }
+        .total-row { background-color: #eaedd0 !important; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div style="padding:10px;">${printAreaHTML}</div>
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    <\/script>
+</body>
+</html>`;
+
+        const blob = new Blob([outputPage], { type: 'text/html;charset=utf-8' });
+        const objUrl = URL.createObjectURL(blob);
+        
+        const newWindow = window.open(objUrl, '_blank');
+        if(!newWindow) {
+            alert("Popup blocker block korise! Please allow popups.");
+        }
+    }
+
+    function downloadCSV() {
+        const filterMonth = document.getElementById('filterMonth').value;
+        const filterAgent = document.getElementById('filterAgent').value;
+        let totalWeight = 0;
+        let hasData = false;
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Date,Agent Name,Month,Quantity (KG),Leaf %\n";
+
+        for (let i = 0; i < logs.length; i++) {
+            const log = logs[i];
+            if (filterMonth !== "All" && log.month !== filterMonth) continue;
+            if (filterAgent !== "All" && log.agent !== filterAgent) continue;
+            
+            hasData = true;
+            totalWeight += log.quantity;
+            csvContent += `"${formatDisplayDate(log.rawDate)}","${log.agent}","${log.month}","${log.quantity} kg","${log.percentage}"\n`;
+        }
+
+        if (!hasData) {
+            alert("No data to download!");
+            return;
+        }
+
+        csvContent += `"Total","—","—","${totalWeight} kg","—"\n`;
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${filterAgent}_${filterMonth}_Leaf_Log.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    populateAgentDropdown();
+    renderTable();
+</script>
+
+</body>
+</html>
